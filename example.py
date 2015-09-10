@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 from droneapi import connect
 from droneapi.lib import VehicleMode, Location
 from pymavlink import mavutil
@@ -5,15 +7,66 @@ from Queue import Queue
 from flask import Flask, render_template, jsonify, Response, request
 import time
 import json
+import urllib
+import atexit
+import os
+import socket
+from threading import Thread
+from subprocess import Popen
+from flask import render_template
+from flask import Flask, Response
+
+# Allow us to reuse sockets after the are bound.
+# http://stackoverflow.com/questions/25535975/release-python-flask-port-when-script-is-terminated
+socket.socket._bind = socket.socket.bind
+def my_socket_bind(self, *args, **kwargs):
+    self.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    return socket.socket._bind(self, *args, **kwargs)
+socket.socket.bind = my_socket_bind
+
+def launch_mjpegserver():
+    """
+    Start gstreamer pipeline to launch mjpeg server.
+    """
+    mjpegserver = Popen(['gst-launch', 'v4l2src', 'device=/dev/video2', '!',
+        'jpegenc', '!',
+        'tcpserversink', 'port=6000', 'sync=false'])
+    def mjpegserver_cleanup():
+        mjpegserver.kill()
+    atexit.register(mjpegserver_cleanup)
+
+jpg = ''
+
+def mjpegthread():
+    global jpg
+    while True:
+        try:
+            stream=urllib.urlopen('http://localhost:6000/')
+            bytes=''
+            while True:
+                bytes += stream.read(1024)
+                a = bytes.find('\xff\xd8')
+                b = bytes.find('\xff\xd9')
+                if a!=-1 and b!=-1:
+                    jpg = bytes[a:b+2]
+                    bytes= bytes[b+2:]
+        except:
+            try:
+                stream.close()
+            except:
+                pass
+
+def launch_mjpegclient():
+    """
+    Launches a client for the mjpeg server that caches one
+    jpeg at a time, globally.
+    """
+    t = Thread(target=mjpegthread)
+    t.daemon = True
+    t.start()
 
 def sse_encode(obj, id=None):
     return "data: %s\n\n" % json.dumps(obj)
-
-# Connect to UDP endpoint
-print 'connecting...'
-vehicle = connect('udpout:10.1.1.10:14560')
-print 'connected to drone.'
-
 
 def set_gimbal_manual(roll, pitch, yaw):
     if not (pitch >= -90) or not (pitch <= 0):
@@ -92,6 +145,11 @@ def goto(lat, lon, alt=30):
         vehicle.commands.goto(a_location)
         vehicle.flush()
 
+
+print 'connecting...'
+vehicle = connect('udpout:10.1.1.10:14560')
+print 'connected to drone.'
+
 def location_msg():
     return {"lat": vehicle.location.lat, "lon": vehicle.location.lon}
 
@@ -147,12 +205,21 @@ def api_location():
     else:
         return jsonify(**location_msg())
 
-@app.route("/api/photo", methods=['POST'])
+@app.route("/api/photo", methods=['GET'])
 def api_photo():
-    set_gimbal_manual(0, -90, 0)
-    condition_yaw(0)
-    time.sleep(DURATION)
-    return jsonify(ok=True)
+    try:
+        set_gimbal_manual(0, -90, 0)
+        condition_yaw(0)
+        time.sleep(DURATION)
+        return Response(jpg, mimetype='image/jpeg')
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify(ok=False)
 
 if __name__ == "__main__":
-    app.run(threaded=True)
+    # Connect to UDP endpoint
+    if 'LOCAL_TEST' not in os.environ:
+        launch_mjpegserver()
+        launch_mjpegclient()
+    app.run(threaded=True, host='0.0.0.0')
