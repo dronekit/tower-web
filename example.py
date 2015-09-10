@@ -98,23 +98,6 @@ def set_gimbal_manual(roll, pitch, yaw):
         vehicle.flush()
 
 def condition_yaw(heading, relative=False):
-    """
-    Send MAV_CMD_CONDITION_YAW message to point vehicle at a specified heading (in degrees).
-    This method sets an absolute heading by default, but you can set the `relative` parameter
-    to `True` to set yaw relative to the current yaw heading.
-    
-    By default the yaw of the vehicle will follow the direction of travel. After setting 
-    the yaw using this function there is no way to return to the default yaw "follow direction 
-    of travel" behaviour (https://github.com/diydrones/ardupilot/issues/2427)
-    
-    For more information see: 
-    http://copter.ardupilot.com/wiki/common-mavlink-mission-command-messages-mav_cmd/#mav_cmd_condition_yaw
-    """
-    if relative:
-        is_relative=1 #yaw relative to direction of travel
-    else:
-        is_relative=0 #yaw is an absolute angle
-    
     for i in range(0, 5):
         time.sleep(0.1)
         vehicle.mode = VehicleMode("GUIDED")
@@ -126,7 +109,7 @@ def condition_yaw(heading, relative=False):
             heading,    # param 1, yaw in degrees
             0,          # param 2, yaw speed deg/s
             1,          # param 3, direction -1 ccw, 1 cw
-            is_relative, # param 4, relative offset 1, absolute angle 0
+            1 if relative else 0, # param 4, relative offset 1, absolute angle 0
             0, 0, 0)    # param 5 ~ 7 not used
         # send command to vehicle
         vehicle.send_mavlink(msg)
