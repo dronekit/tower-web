@@ -24,6 +24,9 @@ def my_socket_bind(self, *args, **kwargs):
     return socket.socket._bind(self, *args, **kwargs)
 socket.socket.bind = my_socket_bind
 
+DURATION=5
+jpg = ''
+
 def launch_mjpegserver():
     """
     Start gstreamer pipeline to launch mjpeg server.
@@ -35,7 +38,6 @@ def launch_mjpegserver():
         mjpegserver.kill()
     atexit.register(mjpegserver_cleanup)
 
-jpg = ''
 
 def mjpegthread():
     global jpg
@@ -115,8 +117,6 @@ def condition_yaw(heading, relative=False):
         vehicle.send_mavlink(msg)
         vehicle.flush()
 
-DURATION=5
-
 def goto(lat, lon, alt=30):
     print 'GOING TO', (lat, lon)
     for i in range(0, 5):
@@ -127,11 +127,6 @@ def goto(lat, lon, alt=30):
         a_location = Location(lat, lon, alt, is_relative=True)
         vehicle.commands.goto(a_location)
         vehicle.flush()
-
-
-print 'connecting...'
-vehicle = connect('udpout:10.1.1.10:14560')
-print 'connected to drone.'
 
 def location_msg():
     return {"lat": vehicle.location.lat, "lon": vehicle.location.lon}
@@ -177,10 +172,7 @@ def api_location():
         try:
             data = request.get_json()
             (lat, lon) = (float(data['lat']), float(data['lon']))
-
-            
             goto(lat, lon)
-
             return jsonify(ok=True)
         except Exception as e:
             print(e)
@@ -202,7 +194,10 @@ def api_photo():
 
 if __name__ == "__main__":
     # Connect to UDP endpoint
-    if 'LOCAL_TEST' not in os.environ:
+    if 'REAL_TEST' in os.environ:
+        print 'connecting...'
+        vehicle = connect('udpout:10.1.1.10:14560')
+        print 'connected to drone.'
         launch_mjpegserver()
         launch_mjpegclient()
     app.run(threaded=True, host='0.0.0.0')

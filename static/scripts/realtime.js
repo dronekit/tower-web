@@ -1,19 +1,23 @@
 var transform = ol.proj.getTransform('EPSG:3857', 'EPSG:4326');
 
 var map = new ol.Map({
-  controls: [],
-  interactions : ol.interaction.defaults({
-    doubleClickZoom: false,
-    dragZoom: false,
-    keyboardZoom: false,
-    mouseWheelZoom: false,
-    pinchZoom: false,
-  }),
+  // controls: [],
+  // interactions : ol.interaction.defaults({
+  //   doubleClickZoom: false,
+  //   dragZoom: false,
+  //   keyboardZoom: false,
+  //   mouseWheelZoom: false,
+  //   pinchZoom: false,
+  // }),
   target: 'map',
   renderer: 'canvas', // Force the renderer to be used
   layers: [
     new ol.layer.Tile({
-      source: new ol.source.MapQuest({layer: 'sat'})
+      source: new ol.source.BingMaps({
+        key: 'AnGHr16zmRWug0WA8mJKrMg5g6W4GejzGPBdP-wQ4Gqqw-yHNqsHmYPYh1VUOR1q',
+        // imagerySet: 'AerialWithLabels',
+        imagerySet: 'Road',
+      })
     })
   ],
   view: new ol.View({

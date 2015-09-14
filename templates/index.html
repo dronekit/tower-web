@@ -4,18 +4,33 @@
     <script src="https://code.jquery.com/jquery.min.js"></script>
     <link rel="stylesheet" href="http://openlayers.org/en/v3.8.2/css/ol.css" type="text/css">
     <style>
-      .map {
-        height: 400px;
-        width: 100%;
-      }
+#header { 
+  position: absolute;
+  left: 20px;
+  color: white;
+  z-index: 100;
+  font-family: Sans;
+}
+html, body, .map {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+}
+.ol-zoom {
+  right: 20px !important;
+  left: initial;
+}
     </style>
     <script src="http://openlayers.org/en/v3.8.2/build/ol.js" type="text/javascript"></script>
-    <title>OpenLayers 3 example</title>
+    <title>Galacsian</title>
   </head>
   <body>
-    <h2>Realtime Earth</h2>
+    <div id="header">
+      <h1>Galacsian</h1>
+      <button id="header-center">CENTER</button>
+    </div>
     <div id="map" class="map"></div>
-    <button id="take_photo" style="font-size: 1.5em">TAKE PHOTO</button>
 
     <script type="text/javascript" src="/static/scripts/realtime.js"></script>
   </body>
