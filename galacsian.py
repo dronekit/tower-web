@@ -28,11 +28,12 @@ socket.socket.bind = my_socket_bind
 def sse_encode(obj, id=None):
     return "data: %s\n\n" % json.dumps(obj)
 
-def location_msg():
-    try:
-        return {"lat": vehicle.location.lat, "lon": vehicle.location.lon}
-    except:
-        return {"lat": 0, "lon": 0}
+def state_msg():
+    if vehicle.location.lat == None:
+        raise Exception('no position info')
+    if vehicle.armed == None:
+        raise Exception('no armed info')
+    return {"armed": vehicle.armed, "alt": vehicle.location.alt, "mode": vehicle.mode.name, "lat": vehicle.location.lat, "lon": vehicle.location.lon}
 
 app = Flask(__name__)
 
@@ -41,20 +42,24 @@ def home():
     return render_template('index.html')
 
 listeners_location = []
+listeners_location
 
 from threading import Thread
 import time
 def tcount():
     while True:
         time.sleep(0.25)
-        msg = location_msg()
-        for x in listeners_location:
-            x.put(msg)
+        try:
+            msg = state_msg()
+            for x in listeners_location:
+                x.put(msg)
+        except Exception as e:
+            pass
 t = Thread(target=tcount)
 t.daemon = True
 t.start()
 
-@app.route("/api/sse/location")
+@app.route("/api/sse/state")
 def api_sse_location():
     def gen():
         q = Queue()
@@ -69,23 +74,35 @@ def api_sse_location():
 
     return Response(gen(), mimetype="text/event-stream")
 
-@app.route("/api/location", methods=['GET', 'POST', 'PUT'])
+# @app.route("/api/location", methods=['GET', 'POST', 'PUT'])
+# def api_location():
+#     if request.method == 'POST' or request.method == 'PUT':
+#         try:
+#             data = request.get_json()
+#             (lat, lon) = (float(data['lat']), float(data['lon']))
+#             goto(lat, lon)
+#             return jsonify(ok=True)
+#         except Exception as e:
+#             print(e)
+#             return jsonify(ok=False)
+#     else:
+#         return jsonify(**location_msg())
+
+
+@app.route("/api/arm", methods=['POST', 'PUT'])
 def api_location():
     if request.method == 'POST' or request.method == 'PUT':
         try:
-            data = request.get_json()
-            (lat, lon) = (float(data['lat']), float(data['lon']))
-            goto(lat, lon)
+            vehicle.armed = True
+            vehicle.flush()
             return jsonify(ok=True)
         except Exception as e:
             print(e)
             return jsonify(ok=False)
-    else:
-        return jsonify(**location_msg())
 
 if __name__ == "__main__":
     # Connect to UDP endpoint
     print 'connecting...'
     vehicle = connect(sys.argv[1])
     print 'connected to drone.'
-    app.run(threaded=True, host='0.0.0.0')
+    app.run(threaded=True, host='0.0.0.0', port=24403)

@@ -53,7 +53,7 @@ $('#take_photo').on('click', function () {
 // setTimeout(addImage, 000, 37.8732388, -122.3028985, '/static/images/example.jpg');
 
 var iconFeature = new ol.Feature({
-  geometry: new ol.geom.Point(ol.proj.transform([-122.3020636, 37.8732388], 'EPSG:4326', 'EPSG:3857')),
+  geometry: new ol.geom.Point(ol.proj.transform([0, 0], 'EPSG:4326', 'EPSG:3857')),
   name: 'Solo',
 });
 
@@ -76,28 +76,44 @@ var vectorLayer = new ol.layer.Vector({
 
 map.addLayer(vectorLayer)
 
-map.on('dblclick', function(evt) {
-  var coord = transform(evt.coordinate);
+// map.on('dblclick', function(evt) {
+//   var coord = transform(evt.coordinate);
+//   $.ajax({
+//     method: 'PUT',
+//     url: '/api/location',
+//     contentType : 'application/json',
+//     data: JSON.stringify({ lat: coord[1], lon: coord[0] }),
+//   })
+//   .done(function( msg ) {
+//     console.log('sent data')
+//   });
+// });
+
+$('#header-arm').on('click', function () {
   $.ajax({
     method: 'PUT',
-    url: '/api/location',
+    url: '/api/arm',
     contentType : 'application/json',
-    data: JSON.stringify({ lat: coord[1], lon: coord[0] }),
+    data: JSON.stringify({ arm: true }),
   })
   .done(function( msg ) {
-    console.log('sent data')
+    console.log('sent arming message')
   });
-});
+})
 
 var globmsg = null;
 
-var source = new EventSource('/api/sse/location');
+var source = new EventSource('/api/sse/state');
 source.onmessage = function (event) {
   var msg = JSON.parse(event.data);
   if (!globmsg) {
+    console.log('FIRST', msg);
     map.getView().setCenter(ol.proj.transform([msg.lon, msg.lat], 'EPSG:4326', 'EPSG:3857'));
   }
   globmsg = msg;
+
+  $('#header-state').html('<b>Armed:</b> ' + msg.armed + '<br><b>Mode:</b> ' + msg.mode + '<br><b>Altitude:</b> ' + msg.alt.toFixed(2))
+  $('#header-arm').prop('disabled', msg.armed);
   console.log(msg);
   iconFeature.setGeometry(new ol.geom.Point(ol.proj.transform([msg.lon, msg.lat], 'EPSG:4326',     
 'EPSG:3857')));
