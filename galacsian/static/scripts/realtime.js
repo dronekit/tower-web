@@ -139,7 +139,7 @@ source.onmessage = function (event) {
 
   $('#header-state').html('<b>Armed:</b> ' + msg.armed + '<br><b>Mode:</b> ' + msg.mode + '<br><b>Altitude:</b> ' + msg.alt.toFixed(2))
   $('#header-arm').prop('disabled', msg.armed);
-  console.log(msg);
+  // console.log(msg);
   iconFeature.setGeometry(new ol.geom.Point(ol.proj.transform([msg.lon, msg.lat], 'EPSG:4326',     
 'EPSG:3857')));
 };
