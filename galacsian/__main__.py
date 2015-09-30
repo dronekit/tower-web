@@ -119,10 +119,15 @@ def connect_to_drone():
     print 'connecting to drone...'
     while not vehicle:
         try:
-            vehicle = connect(sys.argv[1])
+            vehicle = connect(sys.argv[1], await_params=True)
         except Exception as e:
             print 'waiting for connection...'
             time.sleep(2)
+
+    # if --sim is enabled...
+    vehicle.parameters['ARMING_CHECK'] = 0
+    vehicle.flush()
+
     print 'connected!'
 
 t2 = Thread(target=connect_to_drone)
