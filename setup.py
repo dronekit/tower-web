@@ -13,10 +13,10 @@ setup(name='galacsian',
       	'protobuf==3.0.0a1',
 		'requests==2.5.1',
 		'wheel==0.24.0',
-    'droneapi>=1.5.0',
+    'droneapi==2.0.0-beta1',
 	  ],
 	  dependency_links = [
-		  'git+https://github.com/dronekit/dronekit-python@v2.0.0-beta1',
+		  'https://github.com/dronekit/dronekit-python/tarball/v2.0.0-beta1#egg=droneapi-2.0.0-beta1',
       ],
       entry_points={
           'console_scripts': [
