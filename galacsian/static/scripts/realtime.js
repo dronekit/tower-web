@@ -101,6 +101,30 @@ $('#header-arm').on('click', function () {
   });
 })
 
+$('#header-mode-loiter').on('click', function () {
+  $.ajax({
+    method: 'PUT',
+    url: '/api/mode',
+    contentType : 'application/json',
+    data: JSON.stringify({ mode: 'LOITER' }),
+  })
+  .done(function( msg ) {
+    console.log('sent mode change')
+  });
+})
+
+$('#header-mode-stabilize').on('click', function () {
+  $.ajax({
+    method: 'PUT',
+    url: '/api/mode',
+    contentType : 'application/json',
+    data: JSON.stringify({ mode: 'STABILIZE' }),
+  })
+  .done(function( msg ) {
+    console.log('sent mode change')
+  });
+})
+
 var globmsg = null;
 
 var source = new EventSource('/api/sse/state');

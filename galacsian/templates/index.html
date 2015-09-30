@@ -10,6 +10,7 @@
   color: white;
   z-index: 100;
   font-family: Sans;
+  margin-top: 20px;
 }
 html, body, .map {
   margin: 0;
@@ -39,7 +40,9 @@ body.disabled {
       {% endif %}
       <button id="header-center">Center Map</button>
       <p id="header-state"><b>Armed:</b> ???<br><b>Mode:</b> ??? <br><b>Altitude:</b> ???</p>
-      <button id="header-arm">ARM</button></p>
+      <button id="header-arm">ARM</button>
+      <button id="header-mode-loiter">Loiter</button>
+      <button id="header-mode-stabilize">Stabilize</button>
     </div>
     <div id="map" class="map"></div>
 

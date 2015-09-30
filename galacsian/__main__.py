@@ -102,6 +102,17 @@ def api_location():
             print(e)
             return jsonify(ok=False)
 
+@app.route("/api/mode", methods=['POST', 'PUT'])
+def api_mode():
+    if request.method == 'POST' or request.method == 'PUT':
+        try:
+            vehicle.mode = VehicleMode(request.json['mode'].upper())
+            vehicle.flush()
+            return jsonify(ok=True)
+        except Exception as e:
+            print(e)
+            return jsonify(ok=False)
+
 def connect_to_drone():
     global vehicle
 
