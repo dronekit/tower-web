@@ -21,11 +21,18 @@ html, body, .map {
   right: 20px !important;
   left: initial;
 }
+
+body.disabled {
+  filter: grayscale(100%);
+  -webkit-filter: grayscale(100%);
+  filter: contrast(30%);
+  -webkit-filter: contrast(30%);
+}
     </style>
     <script src="http://openlayers.org/en/v3.8.2/build/ol.js" type="text/javascript"></script>
     <title>Galacsian</title>
   </head>
-  <body>
+  <body class="disabled">
     <div id="header">
       <h1>Galacsian</h1>
       <button id="header-center">Center Map</button>

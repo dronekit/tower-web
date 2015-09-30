@@ -108,6 +108,7 @@ source.onmessage = function (event) {
   var msg = JSON.parse(event.data);
   if (!globmsg) {
     console.log('FIRST', msg);
+    $('body').removeClass('disabled')
     map.getView().setCenter(ol.proj.transform([msg.lon, msg.lat], 'EPSG:4326', 'EPSG:3857'));
   }
   globmsg = msg;

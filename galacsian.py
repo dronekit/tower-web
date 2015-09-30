@@ -17,6 +17,8 @@ from subprocess import Popen
 from flask import render_template
 from flask import Flask, Response
 
+vehicle = None
+
 # Allow us to reuse sockets after the are bound.
 # http://stackoverflow.com/questions/25535975/release-python-flask-port-when-script-is-terminated
 socket.socket._bind = socket.socket.bind
@@ -100,9 +102,21 @@ def api_location():
             print(e)
             return jsonify(ok=False)
 
+def connect_to_drone():
+    global vehicle
+
+    print 'connecting to drone...'
+    while not vehicle:
+        try:
+            vehicle = connect(sys.argv[1])
+        except Exception as e:
+            print 'waiting for connection...'
+            time.sleep(2)
+    print 'connected!'
+
+t2 = Thread(target=connect_to_drone)
+t2.daemon = True
+t2.start()
+
 if __name__ == "__main__":
-    # Connect to UDP endpoint
-    print 'connecting...'
-    vehicle = connect(sys.argv[1])
-    print 'connected to drone.'
     app.run(threaded=True, host='0.0.0.0', port=24403)
