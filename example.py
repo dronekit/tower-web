@@ -24,112 +24,14 @@ def my_socket_bind(self, *args, **kwargs):
     return socket.socket._bind(self, *args, **kwargs)
 socket.socket.bind = my_socket_bind
 
-DURATION=5
-jpg = ''
-
-def launch_mjpegserver():
-    """
-    Start gstreamer pipeline to launch mjpeg server.
-    """
-    mjpegserver = Popen(['gst-launch', 'v4l2src', 'device=/dev/video2', '!',
-        'jpegenc', '!',
-        'tcpserversink', 'port=6000', 'sync=false'])
-    def mjpegserver_cleanup():
-        mjpegserver.kill()
-    atexit.register(mjpegserver_cleanup)
-
-
-def mjpegthread():
-    global jpg
-    while True:
-        try:
-            stream=urllib.urlopen('http://localhost:6000/')
-            bytes=''
-            while True:
-                bytes += stream.read(1024)
-                a = bytes.find('\xff\xd8')
-                b = bytes.find('\xff\xd9')
-                if a!=-1 and b!=-1:
-                    jpg = bytes[a:b+2]
-                    bytes= bytes[b+2:]
-        except:
-            try:
-                stream.close()
-            except:
-                pass
-
-def launch_mjpegclient():
-    """
-    Launches a client for the mjpeg server that caches one
-    jpeg at a time, globally.
-    """
-    t = Thread(target=mjpegthread)
-    t.daemon = True
-    t.start()
-
 def sse_encode(obj, id=None):
     return "data: %s\n\n" % json.dumps(obj)
 
-def set_gimbal_manual(roll, pitch, yaw):
-    if not (pitch >= -90) or not (pitch <= 0):
-        raise Exception('Gimbal angle must be between -90 and 0')
-
-    for i in range(0, 5):
-        time.sleep(.1)
-        # set gimbal targeting mode
-        msg = vehicle.message_factory.mount_configure_encode(
-            0, 1,    # target system, target component
-            mavutil.mavlink.MAV_MOUNT_MODE_MAVLINK_TARGETING,  #mount_mode
-            1,  # stabilize roll
-            1,  # stabilize pitch
-            1,  # stabilize yaw
-            )
-        vehicle.send_mavlink(msg)
-        vehicle.flush()
-
-    for i in range(0, 5):
-        time.sleep(.1)
-        msg = vehicle.message_factory.mount_control_encode(
-            0, 1,    # target system, target component
-            pitch*100.0, # pitch is in centidegrees
-            roll*100.0, # roll
-            yaw*100.0, # yaw is in centidegrees
-            0 # save position
-            )
-        vehicle.send_mavlink(msg)
-        vehicle.flush()
-
-def condition_yaw(heading, relative=False):
-    for i in range(0, 5):
-        time.sleep(0.1)
-        vehicle.mode = VehicleMode("GUIDED")
-        # create the CONDITION_YAW command using command_long_encode()
-        msg = vehicle.message_factory.command_long_encode(
-            0, 0,    # target system, target component
-            mavutil.mavlink.MAV_CMD_CONDITION_YAW, #command
-            0, #confirmation
-            heading,    # param 1, yaw in degrees
-            0,          # param 2, yaw speed deg/s
-            1,          # param 3, direction -1 ccw, 1 cw
-            1 if relative else 0, # param 4, relative offset 1, absolute angle 0
-            0, 0, 0)    # param 5 ~ 7 not used
-        # send command to vehicle
-        vehicle.send_mavlink(msg)
-        vehicle.flush()
-
-def goto(lat, lon, alt=30):
-    print 'GOING TO', (lat, lon)
-    for i in range(0, 5):
-        time.sleep(.1)
-        # Set mode to guided - this is optional as the goto method will change the mode if needed.
-        vehicle.mode = VehicleMode("GUIDED")
-        # Set the target location and then call flush()
-        a_location = Location(lat, lon, alt, is_relative=True)
-        vehicle.commands.goto(a_location)
-        vehicle.flush()
-
 def location_msg():
-    return {"lat": vehicle.location.lat, "lon": vehicle.location.lon}
+    try:
+        return {"lat": vehicle.location.lat, "lon": vehicle.location.lon}
+    except:
+        return {"lat": 0, "lon": 0}
 
 app = Flask(__name__)
 
@@ -180,24 +82,9 @@ def api_location():
     else:
         return jsonify(**location_msg())
 
-@app.route("/api/photo", methods=['GET'])
-def api_photo():
-    try:
-        set_gimbal_manual(0, -90, 0)
-        condition_yaw(0)
-        time.sleep(DURATION)
-        return Response(jpg, mimetype='image/jpeg')
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        return jsonify(ok=False)
-
 if __name__ == "__main__":
     # Connect to UDP endpoint
-    if 'REAL_TEST' in os.environ:
-        print 'connecting...'
-        vehicle = connect('udpout:10.1.1.10:14560')
-        print 'connected to drone.'
-        launch_mjpegserver()
-        launch_mjpegclient()
+    print 'connecting...'
+    vehicle = connect('udpout:127.0.0.1:14550')
+    print 'connected to drone.'
     app.run(threaded=True, host='0.0.0.0')
