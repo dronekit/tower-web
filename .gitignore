@@ -3,3 +3,5 @@ env
 wheelhouse
 *.log
 video
+*.egg-info
+
