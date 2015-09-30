@@ -15,6 +15,9 @@ setup(name='galacsian',
 		'wheel==0.24.0',
     'droneapi==1.5.0',
 	  ],
+    package_data={
+      'galacsian': ['static/images/*', 'static/scripts/*', 'templates/*'],
+      },
       entry_points={
           'console_scripts': [
               'galacsian = galacsian.__main__:main'
