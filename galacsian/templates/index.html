@@ -34,7 +34,9 @@ body.disabled {
   </head>
   <body class="disabled">
     <div id="header">
-      <h1>Galacsian</h1>
+      {% if branding %}
+        <h1>Galacsian</h1>
+      {% endif %}
       <button id="header-center">Center Map</button>
       <p id="header-state"><b>Armed:</b> ???<br><b>Mode:</b> ??? <br><b>Altitude:</b> ???</p>
       <button id="header-arm">ARM</button></p>
