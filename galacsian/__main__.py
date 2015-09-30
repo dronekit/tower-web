@@ -118,5 +118,8 @@ t2 = Thread(target=connect_to_drone)
 t2.daemon = True
 t2.start()
 
-if __name__ == "__main__":
+def main():
     app.run(threaded=True, host='0.0.0.0', port=24403)
+
+if __name__ == "__main__":
+    main()
