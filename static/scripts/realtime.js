@@ -15,8 +15,8 @@ var map = new ol.Map({
     new ol.layer.Tile({
       source: new ol.source.BingMaps({
         key: 'AnGHr16zmRWug0WA8mJKrMg5g6W4GejzGPBdP-wQ4Gqqw-yHNqsHmYPYh1VUOR1q',
-        // imagerySet: 'AerialWithLabels',
-        imagerySet: 'Road',
+        imagerySet: 'AerialWithLabels',
+        // imagerySet: 'Road',
       })
     })
   ],
@@ -89,13 +89,20 @@ map.on('dblclick', function(evt) {
   });
 });
 
-var globmsg = {};
+var globmsg = null;
 
 var source = new EventSource('/api/sse/location');
 source.onmessage = function (event) {
   var msg = JSON.parse(event.data);
+  if (!globmsg) {
+    map.getView().setCenter(ol.proj.transform([msg.lon, msg.lat], 'EPSG:4326', 'EPSG:3857'));
+  }
   globmsg = msg;
   console.log(msg);
   iconFeature.setGeometry(new ol.geom.Point(ol.proj.transform([msg.lon, msg.lat], 'EPSG:4326',     
 'EPSG:3857')));
 };
+
+$('#header-center').on('click', function () {
+  map.getView().setCenter(ol.proj.transform([globmsg.lon, globmsg.lat], 'EPSG:4326', 'EPSG:3857'));
+})

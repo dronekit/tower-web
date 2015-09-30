@@ -10,6 +10,7 @@ import json
 import urllib
 import atexit
 import os
+import sys
 import socket
 from threading import Thread
 from subprocess import Popen
@@ -85,6 +86,6 @@ def api_location():
 if __name__ == "__main__":
     # Connect to UDP endpoint
     print 'connecting...'
-    vehicle = connect('udpout:127.0.0.1:14550')
+    vehicle = connect(sys.argv[1])
     print 'connected to drone.'
     app.run(threaded=True, host='0.0.0.0')
