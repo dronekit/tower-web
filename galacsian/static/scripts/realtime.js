@@ -47,34 +47,47 @@ function addImage(lat, lon, src) {
   map.addLayer(imageLayer);
 }
 
-$('#take_photo').on('click', function () {
-  addImage(globmsg.lat, globmsg.lon, '/api/photo?' + Date.now())
-})
-// setTimeout(addImage, 000, 37.8732388, -122.3028985, '/static/images/example.jpg');
+var overlayContent = document.createElement('div');
+overlayContent.style.position = 'relative';
+overlayContent.style.height = '80px';
+overlayContent.style.width = '80px';
+overlayContent.innerHTML = '' +
+'<div style="background: rgba(0, 220, 255, 1); opacity: 0.2; width: 100%; height: 100%; border-radius: 50%; position: absolute; top: 0; left: 0; box-sizing: border-box; border: 2px solid rgb(0, 100, 150);"></div>' +
+'<div style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; -webkit-transform: rotate(45deg); -webkit-transition: -webkit-transform 0.6s" class="heading"><div style="width: 0; height: 0; border-width: 10px; border-style: solid; border-color: red transparent transparent red; position: absolute; top: 0; left: 0;"></div></div>' +
+'<img src="static/images/solo.png" height="50" style="z-index: 100; position: absolute; top: 50%; left: 50%; margin-left: -43px; margin-top: -20px;">';
 
-var iconFeature = new ol.Feature({
-  geometry: new ol.geom.Point(ol.proj.transform([0, 0], 'EPSG:4326', 'EPSG:3857')),
-  name: 'Solo',
+var overlay = new ol.Overlay({
+    element: overlayContent,
+    position: ol.proj.transform([0, 0], 'EPSG:4326', 'EPSG:3857'),
+    positioning: 'center-center'
 });
 
-iconFeature.setStyle(new ol.style.Style({
-  image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
-    anchor: [0.5, 46],
-    anchorXUnits: 'fraction',
-    anchorYUnits: 'pixels',
-    opacity: 1,
-    src: 'static/images/solo.png',
-    scale: .15,
-  }))
-}));
+// var iconFeature = new ol.Overlay({
+//   element = 
+//   geometry: new ol.geom.Point(ol.proj.transform([0, 0], 'EPSG:4326', 'EPSG:3857')),
+//   name: 'Solo',
+// });
 
-var vectorLayer = new ol.layer.Vector({
-  source: new ol.source.Vector({
-    features: [ iconFeature ]
-  }),
-});
+// iconFeature.setStyle(new ol.style.Style({
+//   image: new ol.style.Icon(/** @type {olx.style.IconOptions} */ ({
+//     anchor: [0.5, 46],
+//     anchorXUnits: 'fraction',
+//     anchorYUnits: 'pixels',
+//     opacity: 1,
+//     src: 'static/images/solo.png',
+//     scale: .15,
+//   }))
+// }));
 
-map.addLayer(vectorLayer)
+// var vectorLayer = new ol.layer.Vector({
+//   source: new ol.source.Vector({
+//     features: [ iconFeature ]
+//   }),
+// });
+
+// map.addLayer(vectorLayer)
+
+map.addOverlay(overlay);
 
 // map.on('dblclick', function(evt) {
 //   var coord = transform(evt.coordinate);
@@ -139,9 +152,9 @@ source.onmessage = function (event) {
 
   $('#header-state').html('<b>Armed:</b> ' + msg.armed + '<br><b>Mode:</b> ' + msg.mode + '<br><b>Altitude:</b> ' + msg.alt.toFixed(2))
   $('#header-arm').prop('disabled', msg.armed);
-  // console.log(msg);
-  iconFeature.setGeometry(new ol.geom.Point(ol.proj.transform([msg.lon, msg.lat], 'EPSG:4326',     
-'EPSG:3857')));
+  
+  overlay.setPosition(ol.proj.transform([msg.lon, msg.lat], 'EPSG:4326', 'EPSG:3857'));
+  $(overlay.getElement()).find('.heading').css('-webkit-transform', 'rotate(' + ((msg.heading + 180) + 45) + 'deg)')
 };
 
 $('#header-center').on('click', function () {

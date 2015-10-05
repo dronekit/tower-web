@@ -35,7 +35,14 @@ def state_msg():
         raise Exception('no position info')
     if vehicle.armed == None:
         raise Exception('no armed info')
-    return {"armed": vehicle.armed, "alt": vehicle.location.alt, "mode": vehicle.mode.name, "lat": vehicle.location.lat, "lon": vehicle.location.lon}
+    return {
+        "armed": vehicle.armed,
+        "alt": vehicle.location.alt,
+        "mode": vehicle.mode.name,
+        "heading": getattr(vehicle._MPVehicle__module, 'heading', 0),
+        "lat": vehicle.location.lat,
+        "lon": vehicle.location.lon
+    }
 
 app = Flask(__name__)
 
