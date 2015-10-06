@@ -154,7 +154,7 @@ source.onmessage = function (event) {
   $('#header-arm').prop('disabled', msg.armed);
   
   overlay.setPosition(ol.proj.transform([msg.lon, msg.lat], 'EPSG:4326', 'EPSG:3857'));
-  $(overlay.getElement()).find('.heading').css('-webkit-transform', 'rotate(' + ((msg.heading + 180) + 45) + 'deg)')
+  $(overlay.getElement()).find('.heading').css('-webkit-transform', 'rotate(' + ((msg.heading) + 45) + 'deg)')
 };
 
 $('#header-center').on('click', function () {
