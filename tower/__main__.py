@@ -16,6 +16,7 @@ from threading import Thread
 from subprocess import Popen
 from flask import render_template
 from flask import Flask, Response
+from datetime import datetime
 
 vehicle = None
 
@@ -136,6 +137,15 @@ def connect_to_drone():
     vehicle.flush()
 
     print 'connected!'
+
+# Never cache
+@app.after_request
+def never_cache(response):
+    response.headers['Last-Modified'] = datetime.now()
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '-1'
+    return response
 
 t2 = Thread(target=connect_to_drone)
 t2.daemon = True

@@ -2,6 +2,15 @@
 <html lang="en">
   <head>
     <script src="https://code.jquery.com/jquery.min.js"></script>
+<script>
+    // Running in electron
+    try {
+        $ = jQuery = module.exports;
+        // If you want module.exports to be empty, uncomment:
+        // module.exports = {};
+    } catch(e) {}
+</script>
+
     <link rel="stylesheet" href="http://openlayers.org/en/v3.8.2/css/ol.css" type="text/css">
     <style>
 #header { 
@@ -36,12 +45,12 @@ window.top.postMessage('gcs', '*');
     </script>
 
     <script src="http://openlayers.org/en/v3.8.2/build/ol.js" type="text/javascript"></script>
-    <title>Galacsian</title>
+    <title>Tower for Desktop</title>
   </head>
   <body class="disabled">
     <div id="header">
       {% if branding %}
-        <h1>Galacsian</h1>
+        <h1>Tower</h1>
       {% endif %}
       <button id="header-center">Center Map</button>
       <p id="header-state"><b>Armed:</b> ???<br><b>Mode:</b> ??? <br><b>Altitude:</b> ???</p>
