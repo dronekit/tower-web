@@ -13,7 +13,7 @@ setup(name='tower-desktop',
           'protobuf==3.0.0a1',
           'requests==2.5.1',
           'wheel==0.24.0',
-          'dronekit>=2.0.0b3',
+          'dronekit>=2.0.0b6',
       ],
       package_data={
           'tower': [
