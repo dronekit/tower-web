@@ -40,7 +40,7 @@ def state_msg():
         "armed": vehicle.armed,
         "alt": vehicle.location.alt,
         "mode": vehicle.mode.name,
-        "heading": getattr(vehicle._MPVehicle__module, 'heading', 0),
+        "heading": vehicle.heading or 0,
         "lat": vehicle.location.lat,
         "lon": vehicle.location.lon
     }
