@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
-from dronekit import connect
-from dronekit.lib import VehicleMode, Location
+from dronekit import connect, VehicleMode
 from pymavlink import mavutil
 from Queue import Queue
 from flask import Flask, render_template, jsonify, Response, request
