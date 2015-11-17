@@ -31,17 +31,17 @@ def sse_encode(obj, id=None):
     return "data: %s\n\n" % json.dumps(obj)
 
 def state_msg():
-    if vehicle.location.lat == None:
+    if vehicle.location.global_frame.lat == None:
         raise Exception('no position info')
     if vehicle.armed == None:
         raise Exception('no armed info')
     return {
         "armed": vehicle.armed,
-        "alt": vehicle.location.alt,
+        "alt": vehicle.location.global_frame.alt,
         "mode": vehicle.mode.name,
         "heading": vehicle.heading or 0,
-        "lat": vehicle.location.lat,
-        "lon": vehicle.location.lon
+        "lat": vehicle.location.global_frame.lat,
+        "lon": vehicle.location.global_frame.lon
     }
 
 app = Flask(__name__)
