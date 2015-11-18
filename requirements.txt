@@ -2,4 +2,4 @@ Flask==0.10.1
 protobuf==3.0.0a1
 requests==2.5.1
 wheel==0.24.0
-dronekit>=2.0.0rc7
+dronekit>=2.0.0rc13
