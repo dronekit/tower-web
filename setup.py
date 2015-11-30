@@ -2,12 +2,12 @@
 
 from setuptools import setup, find_packages
 
-setup(name='tower-desktop',
+setup(name='tower-web',
       version='1.0.0',
       description='Browser-based GCS.',
       author='Tim Ryan',
       author_email='tim@3drobotics.com',
-      url='https://github.com/3drobotics/tower-desktop.git',
+      url='https://github.com/dronekit/tower-web.git',
       install_requires=[
           'Flask>=0.10.1',
           'requests>=2.5.1',
